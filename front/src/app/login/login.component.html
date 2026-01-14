@@ -1,0 +1,13 @@
+<div>
+  <h2>Connexion / Choix de profil</h2>
+
+  <label>
+    Pseudo :
+    <input type="text" [(ngModel)]="username" placeholder="Entrez un nom" />
+  </label>
+
+  <p>Choisissez un profil :</p>
+
+  <button (click)="selectRole('CLIENT')">Continuer en tant que Client</button>
+  <button (click)="selectRole('AGENT')">Continuer en tant qu'Agent</button>
+</div>
