@@ -1,13 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SessionService, SessionUser } from '../services/session.service';
-
-interface ChatMessage {
-  from: 'CLIENT' | 'AGENT';
-  content: string;
-  timestamp: Date;
-}
+import { ChatWebsocketService, ChatMessageDto } from '../services/chat-websocket.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
@@ -15,57 +11,58 @@ interface ChatMessage {
   imports: [CommonModule, FormsModule],
   templateUrl: './chat.component.html'
 })
-export class ChatComponent implements OnInit {
+export class ChatComponent implements OnInit, OnDestroy {
 
   user: SessionUser | null = null;
-  connected = true;
+  connected = false;
 
-  messages: ChatMessage[] = [];
+  messages: ChatMessageDto[] = [];
   newMessage = '';
 
-  constructor(private sessionService: SessionService) {}
+  private wsSub?: Subscription;
+
+  constructor(
+    private sessionService: SessionService,
+    private chatWsService: ChatWebsocketService
+  ) {}
 
   ngOnInit(): void {
     this.user = this.sessionService.currentUser;
 
-    if (!this.user) {
+    if (!this.user || !this.user.sessionId) {
       console.warn('Pas de session – normalement redirection vers /login');
       return;
     }
 
-    this.messages = [
-      {
-        from: 'CLIENT',
-        content: 'Bonjour, je cherche une voiture pour ce week-end.',
-        timestamp: new Date()
-      },
-      {
-        from: 'AGENT',
-        content: 'Bonjour, je peux vous aider à trouver une offre.',
-        timestamp: new Date()
-      }
-    ];
+    const sessionId = this.user.sessionId;
+
+   this.wsSub = this.chatWsService.connect(sessionId).subscribe({
+  next: (msg) => {
+    this.connected = true;
+    this.messages.push(msg);
+  },
+  error: (err) => {
+    console.error('Erreur WS', err);
+    this.connected = false;
+  }
+});
+
+  }
+
+  ngOnDestroy(): void {
+    if (this.wsSub) {
+      this.wsSub.unsubscribe();
+    }
+    this.chatWsService.disconnect();
   }
 
   sendMessage() {
-    if (!this.newMessage.trim() || !this.user) {
+    if (!this.newMessage.trim() || !this.user || !this.user.sessionId) {
       return;
     }
 
-    this.messages.push({
-      from: this.user.role,
-      content: this.newMessage.trim(),
-      timestamp: new Date()
-    });
-
+    const sessionId = this.user.sessionId;
+    this.chatWsService.sendMessage(sessionId, this.user, this.newMessage.trim());
     this.newMessage = '';
-
-    setTimeout(() => {
-      this.messages.push({
-        from: this.user!.role === 'CLIENT' ? 'AGENT' : 'CLIENT',
-        content: 'Message reçu (simulation).',
-        timestamp: new Date()
-      });
-    }, 800);
   }
 }

@@ -18,7 +18,14 @@ export class LoginComponent {
     private sessionService: SessionService
   ) {}
 
-  selectRole(role: UserRole) {
+  // Génère un id de session sans utiliser crypto
+  private generateSessionId(): string {
+    return `sess-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  selectRole(role: UserRole): void {
+    console.log('[Login] selectRole called with role =', role, 'username =', this.username);
+
     if (!this.username) {
       this.username = role === 'CLIENT' ? 'ClientDemo' : 'AgentDemo';
     }
@@ -29,8 +36,10 @@ export class LoginComponent {
       role,
       username: this.username,
       userId: fakeUserId,
-      sessionId: crypto.randomUUID()
+      sessionId: this.generateSessionId()
     });
+
+    console.log('[Login] session set, navigating to /chat');
 
     this.router.navigate(['/chat']);
   }

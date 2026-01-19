@@ -1,4 +1,4 @@
-<div>
+<div class="login-container">
   <h2>Connexion / Choix de profil</h2>
 
   <label>
@@ -8,6 +8,11 @@
 
   <p>Choisissez un profil :</p>
 
-  <button (click)="selectRole('CLIENT')">Continuer en tant que Client</button>
-  <button (click)="selectRole('AGENT')">Continuer en tant qu'Agent</button>
+  <button type="button" (click)="selectRole('CLIENT')">
+    Continuer en tant que Client
+  </button>
+
+  <button type="button" (click)="selectRole('AGENT')">
+    Continuer en tant qu'Agent service client
+  </button>
 </div>

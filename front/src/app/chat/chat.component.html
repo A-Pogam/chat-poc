@@ -1,12 +1,23 @@
 <div>
-  <h2>Chat</h2>
-  <p *ngIf="user">Connecté en tant que {{ user.role }} ({{ user.username }})</p>
+  <h2>Chat temps réel</h2>
+
+  <p *ngIf="user">
+    Connecté en tant que {{ user.role }} ({{ user.username }})
+  </p>
+  <p>
+    Statut :
+    <span [style.color]="connected ? 'green' : 'red'">
+      {{ connected ? 'Connecté' : 'Déconnecté' }}
+    </span>
+  </p>
 
   <div *ngFor="let msg of messages">
-    <strong>{{ msg.from }} :</strong> {{ msg.content }}
+    <strong>{{ msg.senderRole }} ({{ msg.senderName }}) :</strong>
+    {{ msg.content }}
+    <small> — {{ msg.timestamp | date:'shortTime' }}</small>
   </div>
 
-  <div>
+  <div style="margin-top: 1rem;">
     <input
       type="text"
       [(ngModel)]="newMessage"

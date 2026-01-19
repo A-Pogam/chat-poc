@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export type UserRole = 'CLIENT' | 'AGENT';
 
@@ -16,11 +17,16 @@ export class SessionService {
 
   private readonly STORAGE_KEY = 'ycw_session';
   private _currentUser: SessionUser | null = null;
+  private isBrowser: boolean;
 
-  constructor() {
-    const stored = sessionStorage.getItem(this.STORAGE_KEY);
-    if (stored) {
-      this._currentUser = JSON.parse(stored);
+  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+
+    if (this.isBrowser) {
+      const stored = sessionStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        this._currentUser = JSON.parse(stored);
+      }
     }
   }
 
@@ -30,12 +36,18 @@ export class SessionService {
 
   setSession(user: SessionUser): void {
     this._currentUser = user;
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+
+    if (this.isBrowser) {
+      sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+    }
   }
 
   clearSession(): void {
     this._currentUser = null;
-    sessionStorage.removeItem(this.STORAGE_KEY);
+
+    if (this.isBrowser) {
+      sessionStorage.removeItem(this.STORAGE_KEY);
+    }
   }
 
   isLoggedIn(): boolean {
