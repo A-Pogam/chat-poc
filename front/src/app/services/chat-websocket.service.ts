@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
 import { SessionUser } from './session.service';
@@ -12,11 +11,8 @@ export interface ChatMessageDto {
   timestamp: string; // ISO string
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ChatWebsocketService {
-
   private stompClient: Client | null = null;
   private messages$ = new Subject<ChatMessageDto>();
   private connected = false;
@@ -27,7 +23,8 @@ export class ChatWebsocketService {
     }
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws/chat'),
+      // ✅ WebSocket natif (STOMP au-dessus)
+      brokerURL: 'ws://localhost:8080/ws/chat',
       reconnectDelay: 5000,
       debug: (str) => console.log('[STOMP]', str)
     });
@@ -42,20 +39,23 @@ export class ChatWebsocketService {
       });
     };
 
+    this.stompClient.onWebSocketError = (evt) => {
+      console.error('[WS] Error', evt);
+    };
+
     this.stompClient.onStompError = (frame) => {
       console.error('[STOMP] Error', frame.headers['message'], frame.body);
     };
 
     this.stompClient.activate();
-
     return this.messages$.asObservable();
   }
 
   disconnect(): void {
-    if (this.stompClient && this.connected) {
+    if (this.stompClient) {
       this.stompClient.deactivate();
-      this.connected = false;
     }
+    this.connected = false;
   }
 
   sendMessage(sessionId: string, user: SessionUser, content: string): void {
