@@ -12,7 +12,7 @@
   </p>
 
   <div *ngFor="let msg of messages">
-    <strong>{{ msg.senderRole }} ({{ msg.senderName }}) :</strong>
+<strong>{{ msg.senderName }} (id {{ msg.senderId }}) :</strong>
     {{ msg.content }}
     <small> — {{ msg.timestamp | date:'shortTime' }}</small>
   </div>

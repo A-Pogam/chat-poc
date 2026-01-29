@@ -4,8 +4,8 @@ import java.time.Instant;
 
 public class ChatMessageDto {
 
-    private String sessionId;
-    private String senderRole;
+    private Long senderId;
+    private Long receiverId;
     private String senderName;
     private String content;
     private Instant timestamp;
@@ -13,28 +13,29 @@ public class ChatMessageDto {
     public ChatMessageDto() {
     }
 
-    public ChatMessageDto(String sessionId, String senderRole, String senderName, String content, Instant timestamp) {
-        this.sessionId = sessionId;
-        this.senderRole = senderRole;
+    public ChatMessageDto(Long senderId, Long receiverId, String senderName, String content, Instant timestamp) {
+        this.senderId = senderId;
+        this.receiverId = receiverId;
         this.senderName = senderName;
         this.content = content;
         this.timestamp = timestamp;
     }
 
-    public String getSessionId() {
-        return sessionId;
+
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
 
-    public String getSenderRole() {
-        return senderRole;
+    public Long getReceiverId() {
+        return receiverId;
     }
 
-    public void setSenderRole(String senderRole) {
-        this.senderRole = senderRole;
+    public void setReceiverId(Long receiverId) {
+        this.receiverId = receiverId;
     }
 
     public String getSenderName() {

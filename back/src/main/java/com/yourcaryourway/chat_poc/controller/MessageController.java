@@ -16,19 +16,9 @@ public class MessageController {
     public MessageController(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
-
-    @PostMapping("/messages")
-    public Message sendMessage(@RequestBody Message message) {
-        return messageRepository.save(message);
-    }
-
     @GetMapping("/conversations/{user1}/{user2}")
-    public List<Message> getConversation(@PathVariable("user1") Long user1,
-                                         @PathVariable("user2") Long user2) {
-        return messageRepository
-                .findBySenderIdAndReceiverIdOrSenderIdAndReceiverIdOrderByCreatedAtAsc(
-                        user1, user2, user2, user1
-                );
+    public List<Message> getConversation(@PathVariable Long user1, @PathVariable Long user2) {
+        String key = com.yourcaryourway.chat_poc.util.ConversationKey.of(user1, user2);
+        return messageRepository.findByConversationKeyOrderByCreatedAtAsc(key);
     }
-
 }

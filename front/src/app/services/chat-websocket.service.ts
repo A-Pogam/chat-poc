@@ -4,8 +4,8 @@ import { Observable, Subject } from 'rxjs';
 import { SessionUser } from './session.service';
 
 export interface ChatMessageDto {
-  sessionId: string;
-  senderRole: 'CLIENT' | 'AGENT';
+  senderId: number;
+  receiverId: number;
   senderName: string;
   content: string;
   timestamp: string; // ISO string
@@ -17,13 +17,16 @@ export class ChatWebsocketService {
   private messages$ = new Subject<ChatMessageDto>();
   private connected = false;
 
-  connect(sessionId: string): Observable<ChatMessageDto> {
+  private currentConversationKey: string | null = null;
+
+  connect(conversationKey: string): Observable<ChatMessageDto> {
+    this.currentConversationKey = conversationKey;
+
     if (this.connected && this.stompClient) {
       return this.messages$.asObservable();
     }
 
     this.stompClient = new Client({
-      // ✅ WebSocket natif (STOMP au-dessus)
       brokerURL: 'ws://localhost:8080/ws/chat',
       reconnectDelay: 5000,
       debug: (str) => console.log('[STOMP]', str)
@@ -33,7 +36,7 @@ export class ChatWebsocketService {
       console.log('[STOMP] Connected');
       this.connected = true;
 
-      this.stompClient!.subscribe(`/topic/chat/${sessionId}`, (message: IMessage) => {
+      this.stompClient!.subscribe(`/topic/chat/${conversationKey}`, (message: IMessage) => {
         const body = JSON.parse(message.body) as ChatMessageDto;
         this.messages$.next(body);
       });
@@ -41,10 +44,17 @@ export class ChatWebsocketService {
 
     this.stompClient.onWebSocketError = (evt) => {
       console.error('[WS] Error', evt);
+      this.connected = false;
     };
 
     this.stompClient.onStompError = (frame) => {
       console.error('[STOMP] Error', frame.headers['message'], frame.body);
+      this.connected = false;
+    };
+
+    this.stompClient.onDisconnect = () => {
+      console.log('[STOMP] Disconnected');
+      this.connected = false;
     };
 
     this.stompClient.activate();
@@ -56,24 +66,31 @@ export class ChatWebsocketService {
       this.stompClient.deactivate();
     }
     this.connected = false;
+    this.currentConversationKey = null;
   }
 
-  sendMessage(sessionId: string, user: SessionUser, content: string): void {
+  sendMessage(user: SessionUser, content: string): void {
     if (!this.stompClient || !this.connected) {
       console.warn('[STOMP] Not connected, cannot send');
       return;
     }
+    if (!this.currentConversationKey) {
+      console.warn('[STOMP] No conversationKey set, cannot send');
+      return;
+    }
+
+    const otherUserId = user.role === 'CLIENT' ? 2 : 1;
 
     const payload: ChatMessageDto = {
-      sessionId,
-      senderRole: user.role,
+      senderId: user.userId,
+      receiverId: otherUserId,
       senderName: user.username,
       content,
       timestamp: new Date().toISOString()
     };
 
     this.stompClient.publish({
-      destination: `/app/chat/${sessionId}`,
+      destination: `/app/chat/${this.currentConversationKey}`,
       body: JSON.stringify(payload)
     });
   }

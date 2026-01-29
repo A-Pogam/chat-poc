@@ -53,4 +53,23 @@ export class SessionService {
   isLoggedIn(): boolean {
     return !!this._currentUser;
   }
+
+  /** Clé de conversation partagée entre 2 users : "min_max" */
+  getConversationId(otherUserId: number): string {
+    const me = this._currentUser;
+    if (!me) {
+      throw new Error('No current user in session');
+    }
+    const a = Math.min(me.userId, otherUserId);
+    const b = Math.max(me.userId, otherUserId);
+    return `${a}_${b}`;
+  }
+
+  /** Optionnel: stocke la conversation courante dans la session */
+  setConversationWith(otherUserId: number): void {
+    if (!this._currentUser) return;
+    const sessionId = this.getConversationId(otherUserId);
+    this.setSession({ ...this._currentUser, sessionId });
+  }
+  
 }

@@ -26,18 +26,18 @@ export class LoginComponent {
   selectRole(role: UserRole): void {
     console.log('[Login] selectRole called with role =', role, 'username =', this.username);
 
-    if (!this.username) {
-      this.username = role === 'CLIENT' ? 'ClientDemo' : 'AgentDemo';
-    }
+const fakeUserId = role === 'CLIENT' ? 1 : 2;
+const otherUserId = role === 'CLIENT' ? 2 : 1;
 
-    const fakeUserId = role === 'CLIENT' ? 1 : 2;
+// ✅ conversation commune : "1_2"
+const sessionId = `${Math.min(fakeUserId, otherUserId)}_${Math.max(fakeUserId, otherUserId)}`;
 
-    this.sessionService.setSession({
-      role,
-      username: this.username,
-      userId: fakeUserId,
-      sessionId: this.generateSessionId()
-    });
+this.sessionService.setSession({
+  role,
+  username: this.username,
+  userId: fakeUserId,
+  sessionId
+});
 
     console.log('[Login] session set, navigating to /chat');
 

@@ -18,6 +18,14 @@ public class Message {
 
     private LocalDateTime createdAt;
 
+    @Column(nullable = false, length = 50)
+    private String conversationKey;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -58,11 +66,11 @@ public class Message {
         this.createdAt = createdAt;
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
+    public String getConversationKey() {
+        return conversationKey;
+    }
+
+    public void setConversationKey(String conversationKey) {
+        this.conversationKey = conversationKey;
     }
 }
-
