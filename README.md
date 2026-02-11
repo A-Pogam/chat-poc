@@ -75,7 +75,7 @@ src/app
 - **MySQL**
 - **Maven**
 
-  ## 🚀 Installation
+  ## Installation
 
 ### 1. Cloner le dépôt
 ```bash
