@@ -89,7 +89,7 @@ Créez une base de données nommée yourcaryourway.
 Importez le script SQL d’initialisation (disponible dans backend/src/main/resources/) :
 
 ```bash
-mysql -u [votre_utilisateur] -p yourcaryourway < backend/src/main/resources/init_db.sql
+mysql -u [votre_utilisateur] -p yourcaryourway < backend/src/main/resources/scrpt.sql
 ```
 
 ### 3. Lancer le backend (Spring Boot)
