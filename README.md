@@ -89,7 +89,7 @@ Créez une base de données nommée yourcaryourway.
 Importez le script SQL d’initialisation (disponible dans backend/src/main/resources/) :
 
 ```bash
-mysql -u [votre_utilisateur] -p yourcaryourway < backend/src/main/resources/scrpt.sql
+mysql -u [votre_utilisateur] -p yourcaryourway < backend/src/main/resources/script.sql
 ```
 
 ### 3. Lancer le backend (Spring Boot)
@@ -106,6 +106,7 @@ npm install
 ng serve
 ```
 
+Application acceccible à l'adresse : http://localhost:4200
 
 
 
