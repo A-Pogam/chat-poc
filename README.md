@@ -94,14 +94,14 @@ mysql -u [votre_utilisateur] -p yourcaryourway < backend/src/main/resources/scri
 
 ### 3. Lancer le backend (Spring Boot)
 ```bash
-cd backend
+cd back
 mvn clean install
 mvn spring-boot\:run
 ```
 
 ### 4. Lancer le frontend (Angular)
 ```bash
-cd frontend
+cd front
 npm install
 ng serve
 ```
