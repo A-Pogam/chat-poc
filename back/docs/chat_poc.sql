@@ -9,11 +9,12 @@ CREATE TABLE `agencies` (
 CREATE TABLE `users` (
   `user_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `address` text,
   `phone` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `unique_email` UNIQUE (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -65,6 +66,7 @@ CREATE TABLE `payments` (
   `status` varchar(20) DEFAULT NULL,
   `transaction_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
+  UNIQUE KEY `unique_transaction` (`transaction_id`),
   KEY `fk_payments_reservation` (`reservation_id`),
   CONSTRAINT `fk_payments_reservation` FOREIGN KEY (`reservation_id`) REFERENCES `reservations` (`reservation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
